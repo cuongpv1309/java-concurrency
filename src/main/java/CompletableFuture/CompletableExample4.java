@@ -23,23 +23,26 @@ public class CompletableExample4 {
         });
 
         CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-            System.out.println("Execute supplyAsync");
+
+            System.out.println("Execute supplyAsync, " + Thread.currentThread());
             sleep(1);
             return "Done supplyAsync";
         }, pool).thenApplyAsync(msg -> {
-            System.out.println("Execute thenApplyAsync");
+            System.out.println("Execute thenApplyAsync, " + Thread.currentThread());
             sleep(1);
             return msg.length();
         }, pool).thenAcceptAsync(n -> {
-            System.out.println("Execute thenAcceptAsync: " + n);
+            System.out.println("Execute thenAcceptAsync: " + n + ", " + Thread.currentThread());
             sleep(1);
-        }, pool).thenRunAsync(() -> {
-            System.out.println("Done!!!");
+        }, pool);
+
+        CompletableFuture<Void> future2 = future.thenRunAsync(() -> {
+            System.out.println("Done, " + Thread.currentThread());
             sleep(1);
         }, pool);
 
         future.get();
-
+        future2.get();
         System.out.println("----------------------------------");
         System.out.println("Total Completed Task Count = " + pool.getCompletedTaskCount());
         System.out.println("Total Task Count = " + pool.getTaskCount());
